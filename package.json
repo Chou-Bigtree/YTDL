@@ -6,7 +6,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@distube/ytdl-core": "2.1.9",
+    "ytdl-core-discord": "^2.1.7",
     "ffmpeg-static": "^5.2.0",
     "fluent-ffmpeg": "^2.1.2"
   }
