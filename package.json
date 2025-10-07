@@ -1,0 +1,13 @@
+{
+  "name": "youtube-downloader-vercel",
+  "version": "1.0.0",
+  "description": "Backend for YouTube Downloader on Vercel",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "ytdl-core": "^4.11.5"
+  }
+}
