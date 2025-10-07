@@ -1,4 +1,4 @@
-const ytdl = require('ytdl-core');
+const ytdl = require('@distube/ytdl-core');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegStatic = require('ffmpeg-static');
 
@@ -75,3 +75,4 @@ module.exports = async (req, res) => {
         res.status(500).json({ error: '處理您的請求時發生內部錯誤。' });
     }
 };
+
