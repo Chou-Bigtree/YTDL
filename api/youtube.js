@@ -1,4 +1,4 @@
-const ytdl = require('@distube/ytdl-core');
+const ytdl = require('ytdl-core-discord');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -24,7 +24,10 @@ export default async function handler(req, res) {
     if (!url) {
         return res.status(400).json({ error: 'YouTube URL is required' });
     }
-    if (!ytdl.validateURL(url)) {
+    
+    // ytdl-core-discord 沒有 validateURL 方法，我們先用一個簡單的正則表達式代替
+    const youtubeRegex = /^(https|http):\/\/(www\.)?(youtube\.com|youtu\.be)\/.+/;
+    if (!youtubeRegex.test(url)) {
         return res.status(400).json({ error: 'Invalid YouTube URL' });
     }
 
@@ -44,23 +47,23 @@ export default async function handler(req, res) {
             }
         } else if (type === 'mp4') {
             res.setHeader('Content-Disposition', 'attachment; filename="video.mp4"');
-            ytdl(url, { filter: 'audioandvideo', quality: 'highest' })
+            const stream = await ytdl(url, { filter: 'audioandvideo', quality: 'highest' });
+            stream
                 .on('error', (err) => {
                     console.error("MP4 download stream error:", err);
-                    // 由於標頭已發送，很難再發送 JSON 錯誤，只能中斷連線
                     res.end();
                 })
                 .pipe(res);
         } else if (type === 'mp3') {
             res.setHeader('Content-Disposition', 'attachment; filename="audio.mp3"');
-            const stream = ytdl(url, { filter: 'audioonly', quality: 'highestaudio' });
+            const stream = await ytdl(url, { filter: 'audioonly', quality: 'highestaudio' });
             
             ffmpeg(stream)
                 .audioBitrate(128)
                 .format('mp3')
                 .on('error', (err) => {
                     console.error('FFmpeg error:', err);
-                    res.end(); // 中斷連線
+                    res.end();
                 })
                 .pipe(res);
         } else {
@@ -68,7 +71,6 @@ export default async function handler(req, res) {
         }
     } catch (generalError) {
         console.error("General server error:", generalError);
-        // 確保即使發生意外，也有一個兜底的錯誤回覆
         if (!res.headersSent) {
             res.status(500).json({ error: '伺服器發生未知錯誤。' });
         }
