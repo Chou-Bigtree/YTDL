@@ -119,8 +119,21 @@
                 // 更新 API 呼叫路徑
                 const response = await fetch(`${API_BASE_URL}?type=info&url=${encodeURIComponent(url)}`);
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || '無法獲取影片資訊，請檢查網址或稍後再試。');
+                    let errorMessage = '無法獲取影片資訊，請檢查網址或稍後再試。';
+                    try {
+                        // 嘗試將錯誤回應解析為 JSON
+                        const errorData = await response.json();
+                        if (errorData.error) {
+                            errorMessage = errorData.error;
+                        }
+                    } catch (e) {
+                        // 如果回應不是 JSON，則直接讀取純文字內容
+                        const textError = await response.text();
+                        if (textError) {
+                            errorMessage = textError;
+                        }
+                    }
+                    throw new Error(errorMessage);
                 }
                 const data = await response.json();
 
@@ -165,4 +178,5 @@
     </script>
 </body>
 </html>
+
 
